@@ -1,0 +1,31 @@
+﻿@page "/"
+
+@inject GameJsInterop game
+
+<div>
+    <GameCanvas></GameCanvas>
+</div>
+@code {
+    string gameId = "game01";
+
+    private DotNetObjectReference<Home>? pageProxy;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            pageProxy = DotNetObjectReference.Create(this);
+            await game.SetupAsync(gameId, pageProxy, "canvas", "/_content/GameLib/");
+            await game.StartAsync();
+        }
+    }
+
+    async Task StartAsync()
+    {
+        await InvokeAsync(async () =>
+        {
+        });
+    }
+
+    public void Dispose() => pageProxy?.Dispose();
+}

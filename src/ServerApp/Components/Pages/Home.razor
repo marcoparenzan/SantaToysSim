@@ -1,0 +1,43 @@
+﻿@page "/"
+@using System.Text.Json
+@using GameLib
+
+@inject GameJsInterop game
+@rendermode InteractiveServer
+
+<div>
+    <GameCanvas></GameCanvas>
+</div>
+@code {
+    string gameId = "game01";
+
+    private DotNetObjectReference<Home>? pageProxy;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            pageProxy = DotNetObjectReference.Create(this);
+            await game.SetupAsync(gameId, pageProxy, "canvas");
+            await game.StartAsync();
+        }
+    }
+
+    async Task StartAsync()
+    {
+        await InvokeAsync(async () =>
+        {
+        });
+    }
+
+    [JSInvokable]
+    public async Task SetXYAsync(JsonElement x, JsonElement y, JsonElement tileType)
+    {
+        // if (x.TryGetInt32(out var xValue) && y.TryGetInt32(out var yValue) && tileType.TryGetInt32(out var tileTypeValue))
+        // {
+        //     mapService.Set(xValue, yValue, (MapTileType)tileTypeValue);
+        // }
+    }
+
+    public void Dispose() => pageProxy?.Dispose();
+}

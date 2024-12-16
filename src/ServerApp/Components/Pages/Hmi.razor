@@ -1,0 +1,50 @@
+﻿@page "/hmi"
+@using System.Text.Json
+@using HmiLib
+
+@inject HmiJsInterop hmi
+@rendermode InteractiveServer
+
+<div>
+    <HmiCanvas></HmiCanvas>
+    <button @onclick="SetAsync">Set</button>
+</div>
+@code {
+    string hmiId = "hmi01";
+
+    private DotNetObjectReference<Hmi>? pageProxy;
+
+    public async Task SetAsync()
+    {
+        var tankValue = Random.Shared.Next(1, 100);
+        await hmi.SetAsync("tank", tankValue);   
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            pageProxy = DotNetObjectReference.Create(this);
+            await hmi.SetupAsync(hmiId, pageProxy, "canvas");
+            await hmi.StartAsync();
+        }
+    }
+
+    async Task StartAsync()
+    {
+        await InvokeAsync(async () =>
+        {
+        });
+    }
+
+    [JSInvokable]
+    public async Task SetXYAsync(JsonElement x, JsonElement y, JsonElement tileType)
+    {
+        // if (x.TryGetInt32(out var xValue) && y.TryGetInt32(out var yValue) && tileType.TryGetInt32(out var tileTypeValue))
+        // {
+        //     mapService.Set(xValue, yValue, (MapTileType)tileTypeValue);
+        // }
+    }
+
+    public void Dispose() => pageProxy?.Dispose();
+}
